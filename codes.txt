@@ -1,0 +1,23 @@
+tab 9
+up -32 72
+down -32 80
+left -32 75
+right -32 77
+F1 0 59
+F2 0 60
+..
+F10 0 68
+F11 -32 -123
+F12 -32 -122
+Ctrl+ABCDEFG... 1-26
+ctrl+enter 10
+enter 13
+insert -32 82
+ctrl + insert -32 -110
+del -32 83
+esc 27
+shift+alt+abcd...z 65 - 90
+ctrl+alt+qwery... 0 16 - 0  
+ctrl+alt+enter 0 28
+backspace 8
+

@@ -1,0 +1,35 @@
+[bilibili]
+cmd = 'echo bilibili'
+jmp = 'wechat'
+launch = ''
+launchAdmin = ''
+
+[hh]
+cmd = '..\..\CApps\'
+jmp = 'ff'
+launch = 'dd'
+launchAdmin = 'ff'
+
+[jj]
+cmd = ''
+jmp = 'hh 123 46475 6546'
+launch = ''
+launchAdmin = ''
+
+[l]
+cmd = 'echo 1'
+jmp = ''
+launch = ''
+launchAdmin = ''
+
+[list]
+cmd = ''
+jmp = '#list 3 sort align {}'
+launch = ''
+launchAdmin = ''
+
+[wechat]
+cmd = 'echo wechat'
+jmp = '#list'
+launch = ''
+launchAdmin = ''

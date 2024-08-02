@@ -1,0 +1,56 @@
+# depslib dependency file v1.0
+1722575310 source:e:\ct\ishall\src\wl\test\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<windows.h>
+	"console_io.h"
+	<conio.h>
+	<iostream>
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\readline.h
+	"rlstdc.h"
+	"rltypedefs.h"
+	"keymaps.h"
+	"tilde.h"
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+	<readline/keymaps.h>
+	<readline/tilde.h>
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\rlstdc.h
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\rltypedefs.h
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\keymaps.h
+	"rlstdc.h"
+	"chardefs.h"
+	"rltypedefs.h"
+	<readline/rlstdc.h>
+	<readline/chardefs.h>
+	<readline/rltypedefs.h>
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\chardefs.h
+	<ctype.h>
+	<string.h>
+	<strings.h>
+	<string.h>
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\tilde.h
+
+1705435319 e:\capps\cenv\msys2\mingw64\include\readline\history.h
+	<time.h>
+	"rlstdc.h"
+	"rltypedefs.h"
+	<readline/rlstdc.h>
+	<readline/rltypedefs.h>
+
+1722573849 e:\ct\ishall\src\wl\test\console_io.h
+	<string>
+	<vector>
+
+1722575482 source:e:\ct\ishall\src\wl\test\console_io.cpp
+	"console_io.h"
+	<windows.h>
+	<conio.h>
+	<iostream>
+

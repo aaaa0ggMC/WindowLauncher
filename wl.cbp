@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="wl" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Option virtualFolders="main/" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/wl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-m64" />
+					<Add option="-g" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-static" />
+					<Add option="-m64" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/wl" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-std=c++20" />
+			<Add directory="dep" />
+			<Add directory="$(#msys2.include)" />
+		</Compiler>
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+			<Add library="aaaa0ggmcLib-g2" />
+			<Add directory="dep" />
+			<Add directory="$(#msys2.lib)" />
+		</Linker>
+		<Unit filename="console_io.cpp" />
+		<Unit filename="console_io.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="main.cpp">
+			<Option virtualFolder="main/" />
+		</Unit>
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
