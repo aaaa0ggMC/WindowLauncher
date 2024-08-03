@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1722578778 source:e:\ct\ishall\src\wl\main.cpp
+1722679688 source:e:\ct\ishall\src\wl\main.cpp
 	<iostream>
 	<string>
 	<cstdlib>
@@ -7,9 +7,12 @@
 	<algorithm>
 	<vector>
 	<cstdio>
+	<map>
+	<fstream>
 	<format>
 	<toml++/toml.hpp>
 	<unordered_map>
+	<cmath>
 	<windows.h>
 	<shellapi.h>
 	<alib/autil.h>

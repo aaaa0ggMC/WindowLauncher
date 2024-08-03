@@ -1,3 +1,21 @@
+['.']
+cmd = ''
+jmp = '#help'
+launch = ''
+launchAdmin = ''
+
+['..']
+cmd = ''
+jmp = 'help'
+launch = ''
+launchAdmin = ''
+
+['?']
+cmd = ''
+jmp = 'help'
+launch = ''
+launchAdmin = ''
+
 [bilibili]
 cmd = 'echo bilibili'
 jmp = 'wechat'
@@ -13,6 +31,18 @@ launchAdmin = 'ff'
 [jj]
 cmd = ''
 jmp = 'hh 123 46475 6546'
+launch = ''
+launchAdmin = ''
+
+[jv]
+cmd = ''
+jmp = ''
+launch = '"C:\Program Files\Java\jdk-21\bin\java.exe"'
+launchAdmin = ''
+
+[jw]
+cmd = '"C:\Program Files\Java\jdk-21\bin\java.exe" {}'
+jmp = ''
 launch = ''
 launchAdmin = ''
 

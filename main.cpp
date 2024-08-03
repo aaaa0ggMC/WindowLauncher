@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdio>
 #include <map>
+#include <fstream>
 #include <format>
 #include <toml++/toml.hpp>
 #include <unordered_map>
@@ -43,6 +44,7 @@ std::unordered_map<string,Alias> dataAl;
 toml::table config;
 toml::table aliases;
 bool suc = false;
+bool shouldSave = true;
 Console console;
 
 const char * help_str =
@@ -60,12 +62,67 @@ R"(`rWindows Launcher `dby `1aaaa0ggmc
 `6#save                        `dsave alias configuration manly
 `6#ref `a[ref_name] `a[alias]      `dcreate a "shortcut" to an alias
 `6#edit `a[alias]                `dcreate a "shortcut" to an alias
+`6#temp                        `dtoggle whether alias will be saved when the program terminated
+`6#search `a[keyword] [OPTIONAL count : default 5 ; <0 equals to all] [OPTIONAL from:default 0]
+                               `dprint similar aliases
 
 `d#list options:
 `asort                         `dsort the aliases from 1 to a to z
 `arsort                        `dsort the aliases from z to a to 1
 `aalign                        `dmake these aliases printed neatly
+`d
+The configuration is stored in "_wl.dat" as a toml file.
+To add a alias or edit an alias(If this program sucks in some fields)`r manly`d,you can see the document below:
+An valid alias consists of 4 components:title,cmd,launch,launchAdmin,jmp
+[TITLE]
+cmd = ''
+launchAdmin = ''
+jmp = ''
+launch = ''
+
+If `ycmd`d is not empty,the program will call `bsystem()`d to run the command.
+If `ylaunch`d is not empty,the program will call `bShellExecute()`d to
+   run the argument,note that this will create a `rnew window`d even if
+   it is a console application.So you'd better use `ycmd`d to launch console
+   applications
+If `ylaunchAdmin`d is not empty,the program will run the argument with `radministrator's
+    privilege`d.Others are similar to `ylaunch`d
+If `yjmp`d is not empty,the program will execute another command,you can jump `rmaximumly`d `b64`d times in
+    a single call
+
+Note that `ycmd`d and `yjmp`d support formatted strings using  `bstd::vformat`d,
+    thus you can use `y{}`d to have a implementation of your command.
+`6{0} `arest arguments`d
+`6{1} `apath`d
+
+eg.
+[`bhh`d]
+`6jmp`d = '`gsay {} {0} {1}`d'
+
+`6hh`d `aHello TTT`d ==> `6say`d `aHello TTT Hello TTT `r/home/`d
+
 )";
+
+vector<string> genKeys(){
+    vector<string> keys;
+    ///Generate keys
+    for(auto & [k,_] : dataAl){
+        keys.push_back(k);
+    }
+    keys.push_back("#help");
+    keys.push_back("#list");
+    keys.push_back("#info");
+    keys.push_back("#add");
+    keys.push_back("#ref");
+    keys.push_back("#delete");
+    keys.push_back("#search");
+    keys.push_back("#temp");
+    keys.push_back("#save");
+    keys.push_back("#reload");
+    keys.push_back("#edit");
+    keys.push_back("#exit");
+    return keys;
+}
 
 string tolower(const string & dat);
 void load_config();
@@ -75,14 +132,21 @@ void help_page();
 void editAlias(vector<string>& args);
 void infoAlias(vector<string>&args);
 void deleteAlias(vector<string>& args);
-void refAlias(vector<string> & args);
+void refAlias(vector<string> & args,const string& args_full);
 void listAlias(vector<string> & args);
+void searchAlias(vector<string> & args);
+std::vector<std::string> sortByMatchDegree(const std::vector<std::string>& texts, const std::string& pattern);
+
+BOOL WINAPI CtrlHandler(DWORD tp);
+
+void runcmd(const string& s);
 
 int main(){
     console.writeEx("`rWindows Launcher`d                            `aEnter #help to get some help.\n");
     load_config();
     atexit([]{
-        save();
+        if(shouldSave)save();
+        //std::remove("_wl_temp.bat");
     });
     {
         HWND consoleWnd = GetConsoleWindow();
@@ -93,6 +157,7 @@ int main(){
             EnableMenuItem(systemMenu, SC_CLOSE, MF_BYCOMMAND | MF_GRAYED);
         }
     }
+    SetConsoleCtrlHandler(CtrlHandler,TRUE);
 
     string command,path = "";
     vector<string> sep_args;
@@ -104,17 +169,24 @@ int main(){
         path = filesystem::current_path().string();
         console.writeEx(string("`b~`6") + path + "`r>>>");
 
-        getline(cin,command);
+        command = "";
+        {
+            char ch = 0;
+            ///Ctrl+C code 为 -1 会直接截断getchar,可惜的是前面的得不到
+            while((ch = getchar()) != '\n'){
+                if(ch != -1)command.push_back(ch);
+            }
+        }
 
         ///analyze
         if(command.compare("")){
             if(command[0] == '>'){
                 ///do not use alias by def
-                string dta = Util::str_unescape(command.substr(1));
+                string dta = command.substr(1);
                 if(!dta.compare("exit")){
                     exit(0);
                 }
-                system(dta.c_str());
+                runcmd(dta);
                 continue;
             }
             //extract the first word and check
@@ -160,26 +232,37 @@ int main(){
                 }else if(!tit.compare("#edit")){
                     editAlias(sep_args);
                     break;
+                }else if(!tit.compare("#search")){
+                    searchAlias(sep_args);
+                    break;
                 }else if(!tit.compare("#delete")){
                     deleteAlias(sep_args);
                     break;
                 }else if(!tit.compare("#reload")){
                     load_config();
                     break;
+                }else if(!tit.compare("#temp")){
+                    shouldSave = !shouldSave;
+                    console.write("Current stage:");
+                    if(shouldSave)console.writeEx("`gAliases will be saved.\n");
+                    else console.writeEx("`rAliases won't be saved.\n");
+                    break;
                 }else if(!tit.compare("#info")){
                     infoAlias(sep_args);
                     break;
                 }else if(!tit.compare("#ref")){
-                    refAlias(sep_args);
+                    refAlias(sep_args,args);
                     break;
                 }
+
+                //cout << tit << endl;
 
                 auto t = dataAl.find(tit);
                 if(t != dataAl.end()){
                     auto & v = (t->second);
                     if(v.cmd.compare("")){
                         string buf = std::vformat(v.cmd,MAKE_ARGS);
-                        system(buf.c_str());
+                        runcmd(buf);
                     }
                     if(v.launchAdmin.compare("")){
                         SHELLEXECUTEINFO se;
@@ -206,13 +289,30 @@ int main(){
                             tit = tolower(v.jmp);
                             args = "";
                         }
+                        command = v.jmp;
                     }
                 }else{
-                    string dta = Util::str_unescape(command);
-                    if(!dta.compare("exit")){
-                        exit(0);
+//                    Util::str_trim_nrt(command);
+//                    if(!command.compare("exit")){
+//                        exit(0);
+//                    }
+//                    runcmd(command);
+                    //search for it
+                    console.writeEx(string("`rCannot find alias `b") + tit + "\n");
+                    //genvec 我知道效率不高 但是能用就行
+                    vector<string> keys = genKeys();
+
+                    vector<string> sugg = sortByMatchDegree(keys,tit);
+
+                    if(sugg.size() == 0){
+                        console.writeEx("`yCouldn't find any related aliases...\n");
+                    }else{
+                        console.writeEx("Here are some suggestions:");
+                        for(auto& a : sugg){
+                            console.writeEx(a + "^w ");
+                        }
+                        console.write("\n");
                     }
-                    system(dta.c_str());
                 }
                 if(!jump){
                     break;
@@ -377,33 +477,29 @@ void editAlias(vector<string>& args){
         Util::io_printColor("The name exists!\n",APCF_RED);
         return;
     }
-    if(Util::str_trim_rt(word).compare("")){
-        a.name = word;
+    if(word.compare("")){
+        a.name = Util::str_trim_rt(word);
     }
 
     cout << "Command(Support escaped string):";
     getline(cin,tmp);
-    Util::str_trim(tmp);
     if(tmp.compare("")){
-        a.cmd = tmp;
+        a.cmd = Util::str_trim_rt(tmp);
     }
     cout << "LaunchAdmin(Support escaped string):";
     getline(cin,tmp);
-    Util::str_trim(tmp);
     if(tmp.compare("")){
-        a.launchAdmin = tmp;
+        a.launchAdmin = Util::str_trim_rt(tmp);
     }
     cout << "Launch(Support escaped string):";
     getline(cin,tmp);
-    Util::str_trim(tmp);
     if(tmp.compare("")){
-        a.launch = tmp;
+        a.launch = Util::str_trim_rt(tmp);
     }
     cout << "JumpTo:";
     getline(cin,tmp);
-    Util::str_trim(tmp);
     if(tmp.compare("")){
-        a.jmp = tmp;
+        a.jmp = Util::str_trim_rt(tmp);
     }
 
     dataAl.emplace(tolower(word),a);
@@ -470,7 +566,7 @@ void deleteAlias(vector<string>& args){
     }
 }
 
-void refAlias(vector<string> & args){
+void refAlias(vector<string> & args,const string& afull){
     string a = "",b = "";
     if(args.size() < 1){
         cout << "New alias name:";
@@ -478,11 +574,19 @@ void refAlias(vector<string> & args){
         string tmp;
         getline(cin,tmp);
     }else a = args[0];
+    Util::str_trim_nrt(a);
     if(args.size() < 2){
         cout << "Ref to:";
         getline(cin,b);
-        Util::str_trim(b);
-    }else b = args[1];
+    }else{
+        //judge
+        string acopy = afull;
+        Util::str_trim_nrt(acopy);
+        auto pos = acopy.find_first_of(' ') + 1;
+        if(pos < acopy.length())b = acopy.substr(pos);
+        else b = "";
+    }
+    Util::str_trim_nrt(b);
 
     string tit;
     auto pos = b.find(' ');
@@ -608,4 +712,123 @@ void listAlias(vector<string> & sep_args){
         }
     }
     cout << endl;
+}
+
+BOOL WINAPI CtrlHandler(DWORD tp){
+    if(tp == CTRL_C_EVENT){
+        //cout << "Finally" << endl;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+//ofstream ofs;
+void runcmd(const string& s){
+    //ofs.open("_wl_temp.bat");
+    //ofs << "@echo off\n" << s << "\n";
+    //ofs.close();
+
+    //system("_wl_temp.bat");
+    system(s.c_str());
+}
+
+void searchAlias(vector<string> & args){
+    if(args.size() < 1){
+        console.writeEx("`b#search `a[keyword] [OPTIONAL count : default 5] [OPTIONAL from:default 0]\n");
+        return;
+    }
+    string keyword = args[0];
+    int vcount  = 5;
+    if(args.size() >= 2){
+        vcount = atoi(args[1].c_str());
+        if(vcount == 0)vcount = 5;
+    }
+    Util::str_trim_nrt(keyword);
+    int from = 0;
+    if(args.size() >= 3)from = atoi(args[2].c_str());
+    if(from < 0)from = 0;
+
+    vector<string> keys = genKeys();
+
+    vector<string> result = sortByMatchDegree(keys,keyword);
+
+    size_t vsz = result.size();
+
+    if(vcount < 0)vcount = (int)(vsz);
+
+    ///print results
+    for(int counter = from;counter < from+vcount && counter < (int)(vsz);++counter){
+        cout << result[counter] << "\n";
+    }
+}
+
+///from chatgpt:sunday search
+std::vector<std::string> sortByMatchDegree(const std::vector<std::string>& texts, const std::string& pattern) {
+    // 内部函数：计算位移表
+    auto createShiftTable = [&](const std::string& pattern) {
+        std::unordered_map<char, int> shiftTable;
+        int m = pattern.size();
+        for (int i = 0; i < m; ++i) {
+            shiftTable[pattern[i]] = m - i;
+        }
+        return shiftTable;
+    };
+
+    // 内部函数：Sunday 搜索算法
+    auto sundaySearch = [&](const std::string& text, const std::string& pattern) {
+        int n = text.size();
+        int m = pattern.size();
+        if (m > n) return -1;
+
+        auto shiftTable = createShiftTable(pattern);
+        int i = 0;
+
+        while (i <= n - m) {
+            int j = 0;
+            while (j < m && pattern[j] == text[i + j]) {
+                ++j;
+            }
+            if (j == m) return i;
+
+            if (i + m >= n) break;
+            char nextChar = text[i + m];
+            if (shiftTable.find(nextChar) != shiftTable.end()) {
+                i += shiftTable[nextChar];
+            } else {
+                i += m + 1;
+            }
+        }
+        return -1;
+    };
+
+    // 内部函数：计算字符串中出现模式的次数
+    auto countMatches = [&](const std::string& text, const std::string& pattern) {
+        int count = 0;
+        std::string tempText = text;
+        int pos = 0;
+        while ((pos = sundaySearch(tempText, pattern)) != -1) {
+            ++count;
+            tempText = tempText.substr(pos + 1);
+        }
+        return count;
+    };
+
+    // 计算每个字符串的匹配次数并排序
+    std::vector<std::pair<int, std::string>> matches;
+    for (const auto& text : texts) {
+        int matchCount = countMatches(text, pattern);
+        matches.emplace_back(matchCount, text);
+    }
+
+    std::sort(matches.begin(), matches.end(), [](const std::pair<int, std::string>& a, const std::pair<int, std::string>& b) {
+        return a.first > b.first;  // 按匹配次数从大到小排序
+    });
+
+    std::vector<std::string> sortedTexts;
+    for (const auto& match : matches) {
+        // 排除没用的 这里不是GPT写的
+        if(match.first != 0)sortedTexts.push_back(match.second);
+    }
+    return sortedTexts;
 }
