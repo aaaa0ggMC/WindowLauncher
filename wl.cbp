@@ -50,12 +50,30 @@
 			<Add directory="dep" />
 			<Add directory="$(#msys2.lib)" />
 		</Linker>
+		<Unit filename="config.cpp" />
+		<Unit filename="config.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="console_io.cpp" />
 		<Unit filename="console_io.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="executer.cpp" />
+		<Unit filename="executer.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="help_en_us.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="help_zh_cn.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="main.cpp">
 			<Option virtualFolder="main/" />
+		</Unit>
+		<Unit filename="parser.cpp" />
+		<Unit filename="parser.h">
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />

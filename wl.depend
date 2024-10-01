@@ -1,22 +1,11 @@
 # depslib dependency file v1.0
-1722679688 source:e:\ct\ishall\src\wl\main.cpp
+1727783759 source:e:\ct\ishall\src\wl\main.cpp
 	<iostream>
-	<string>
-	<cstdlib>
-	<filesystem>
-	<algorithm>
-	<vector>
-	<cstdio>
-	<map>
-	<fstream>
-	<format>
-	<toml++/toml.hpp>
-	<unordered_map>
-	<cmath>
-	<windows.h>
-	<shellapi.h>
 	<alib/autil.h>
 	"console_io.h"
+	"executer.h"
+	"parser.h"
+	"config.h"
 
 1722075093 e:\ct\ishall\src\wl\dep\alib\autil.h
 	<string>
@@ -455,4 +444,54 @@
 1722577046 e:\ct\ishall\src\wl\console_io.h
 	<string>
 	<vector>
+
+1727783561 e:\ct\ishall\src\wl\executer.h
+	<string>
+	<unordered_map>
+	<vector>
+	"console_io.h"
+	"config.h"
+
+1726403499 e:\ct\ishall\src\wl\parser.h
+	<string>
+	<vector>
+
+1727783700 source:e:\ct\ishall\src\wl\executer.cpp
+	"executer.h"
+	<unordered_map>
+	<stdlib.h>
+	<string.h>
+	<alib/astring.h>
+	"help_en_us.h"
+	"help_zh_cn.h"
+
+1726404270 source:e:\ct\ishall\src\wl\parser.cpp
+	"parser.h"
+	<ctype.h>
+	<alib/autil.h>
+
+1727781924 e:\ct\ishall\src\wl\config.h
+	<string>
+
+1727783870 e:\ct\ishall\src\wl\help_en_us.h
+
+1727783888 e:\ct\ishall\src\wl\help_zh_cn.h
+
+1727782090 source:e:\ct\ishall\src\wl\config.cpp
+	"config.h"
+	<alib/adata.h>
+	<iostream>
+	<fstream>
+	<string.h>
+
+1722075093 e:\ct\ishall\src\wl\dep\alib\adata.h
+	<string>
+	<unordered_map>
+	<optional>
+	<stdarg.h>
+	<alib/autil.h>
+
+1722075093 e:\ct\ishall\src\wl\dep\alib\astring.h
+	<string>
+	<alib/autil.h>
 
